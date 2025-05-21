@@ -107,7 +107,7 @@ function MultiStepRegistration() {
 
   // 每一步的欄位名稱
   const stepFields = [
-    ["username", "email", "tgId"],
+    ["username", "email"],
     ["phoneNymber", "regcode"],
     ["password", "confirmPassword", "agree"],
   ];
@@ -237,17 +237,7 @@ function MultiStepRegistration() {
                     placeholder="電子郵件"
                   />
                 </Form.Item>
-                <Form.Item
-                  name="tgId"
-                  label="Telegram ID"
-                  rules={[{ required: false }]}
-                >
-                  <Input
-                    size="large"
-                    prefix={<UserOutlined />}
-                    placeholder="Telegram ID"
-                  />
-                </Form.Item>
+               
               </>
             )}
 
