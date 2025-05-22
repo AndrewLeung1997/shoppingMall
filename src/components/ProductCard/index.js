@@ -12,11 +12,9 @@ const typeIcon = {
 
 function renderInfo(info) {
   // 顯示最多兩項資訊
-  return Object.entries(info)
-    .slice(0, 2)
-    .map(([k, v]) => (
-      <Tag color="default" key={k} style={{ marginRight: 4, marginTop: 2 }}>
-        {k}:{v}
+  return info?.slice(0,2)?.map((value, index) => (
+      <Tag color="default" key={index} style={{ marginRight: 4, marginTop: 2 }}>
+        {value.title}:{value.value}
       </Tag>
     ));
 }
@@ -78,7 +76,7 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
           </Tag>
         </div>
         <Space size="small" style={{ marginBottom: 2, flexWrap: "wrap" }}>
-          {renderInfo(product.info)}
+          {renderInfo(product.productInfo)}
         </Space>
       </div>
       <div style={{ display: "flex", alignItems: "center", marginTop: 8, justifyContent: "space-between" }}>

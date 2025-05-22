@@ -20,7 +20,21 @@ export const allProducts = [
     sold: 1200,
     type: "熱賣",
     category: "手機通訊",
-    info: { 尺寸: "6.7吋", 顏色: "黑色", 型號: "A3101" },
+    productInfo: [
+      { title: "尺寸", value: "152.8 x 71.5 x 8.6 mm" },
+      { title: "顏色", value: "鈦金屬" },
+      { title: "儲存容量", value: "256GB" },
+      { title: "相機", value: "5000萬像素" },
+      { title: "電池", value: "5000mAh" },
+      { title: "處理器", value: "Snapdragon 8 Gen 3" },
+      { title: "RAM", value: "16GB" },
+      { title: "顯示器", value: "6.73吋 AMOLED" },
+      { title: "網絡", value: "5G" },
+      { title: "操作系統", value: "MIUI 15" },
+      { title: "防水等級", value: "IP68" },
+      { title: "重量", value: "226克" },
+      { title: "材質", value: "玻璃、金屬" },
+    ],
     options: [
       {
         title: "機身顏色",
