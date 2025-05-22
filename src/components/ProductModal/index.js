@@ -18,7 +18,7 @@ function ProductOptions({ options, selected, onChange }) {
               display: "flex",
               flexWrap: "wrap",
               gap: 8,
-              rowGap: 8, // 可選，讓上下間距更美觀
+              rowGap: 8,
             }}
           >
             {opt.value.map(v => (
@@ -27,9 +27,19 @@ function ProductOptions({ options, selected, onChange }) {
                 type={selected[opt.title] === v.item ? "primary" : "default"}
                 disabled={!v.available}
                 onClick={() => onChange(opt.title, v.item)}
-                style={{ marginBottom: 4 }}
+                style={{ marginBottom: 4, minWidth: 80 }}
               >
                 {v.item}
+                {v.additionalPrice && v.additionalPrice !== 0 ? (
+                  <span style={{
+                    marginLeft: 4,
+                    color: "#d4380d",
+                    fontSize: 13,
+                    fontWeight: 500
+                  }}>
+                    +HKD${v.additionalPrice}
+                  </span>
+                ): <></>}
               </Button>
             ))}
           </div>
@@ -39,8 +49,7 @@ function ProductOptions({ options, selected, onChange }) {
   );
 }
 
-// 子元件：價格、數量、購物車
-function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions }) {
+function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions, totalAdditional, onCancel }) {
   return (
     <Space direction="vertical" size={16} style={{ width: "100%" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -50,7 +59,7 @@ function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions }
           </Text>
         )}
         <Title level={3} style={{ color: "#d4380d", margin: 0 }}>
-          HKD${product.price}
+          HKD${product.price + totalAdditional}
         </Title>
         {!!product.discount && (
           <span style={{
@@ -61,6 +70,11 @@ function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions }
           </span>
         )}
       </div>
+      {totalAdditional > 0 && (
+        <Text type="danger" style={{ fontSize: 13 }}>
+          已包含加購選項金額：HKD${totalAdditional}
+        </Text>
+      )}
       <Text type="secondary" style={{ fontSize: 13 }}>
         已售：{product.sold}
       </Text>
@@ -78,7 +92,18 @@ function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions }
             marginLeft: 8, minWidth: 140, fontWeight: 600,
             letterSpacing: 2, boxShadow: "0 2px 8px #ffccc7",
           }}
-          onClick={() => onAddToCart(product, quantity, selectedOptions)}
+          // *** 這裡是關鍵 ***
+          onClick={() => {
+            onAddToCart({
+              ...product,
+              quantity,
+              selectedOptions,
+              options: product.options,
+            });
+            if (typeof window !== "undefined" && typeof onCancel === "function") {
+              onCancel();
+            }
+          }}
         >
           加入購物車
         </Button>
@@ -87,17 +112,20 @@ function BuyBar({ product, quantity, setQuantity, onAddToCart, selectedOptions }
   );
 }
 
-// 子元件：產品資訊表
 function InfoTable({ info }) {
   if (!info || info.length === 0) return <Text type="secondary">無資料</Text>;
   return (
     <Table
       dataSource={info}
       columns={[
-        { title: "項目", dataIndex: "title", key: "title", width: "40%",
-          render: text => <Text type="secondary">{text}</Text> },
-        { title: "內容", dataIndex: "value", key: "value",
-          render: text => <Text>{text}</Text> },
+        {
+          title: "項目", dataIndex: "title", key: "title", width: "40%",
+          render: text => <Text type="secondary">{text}</Text>
+        },
+        {
+          title: "內容", dataIndex: "value", key: "value",
+          render: text => <Text>{text}</Text>
+        },
       ]}
       size="small"
       pagination={false}
@@ -107,7 +135,6 @@ function InfoTable({ info }) {
   );
 }
 
-// 子元件：評論
 function Reviews({ reviews }) {
   return (
     <List
@@ -126,7 +153,6 @@ function Reviews({ reviews }) {
   );
 }
 
-// 子元件：評分
 function RatingBar({ value, count }) {
   return (
     <div>
@@ -138,7 +164,6 @@ function RatingBar({ value, count }) {
   );
 }
 
-// 主元件
 export default function ProductModal({
   visible, product, onAddToCart, onCancel
 }) {
@@ -159,7 +184,15 @@ export default function ProductModal({
 
   if (!product) return null;
 
-  // Tabs 配置
+  const getTotalAdditionalPrice = (options, selected) => {
+    if (!options) return 0;
+    return options.reduce((sum, opt) => {
+      const sel = opt.value.find(v => v.item === selected[opt.title]);
+      return sum + (sel && sel.additionalPrice ? sel.additionalPrice : 0);
+    }, 0);
+  };
+  const totalAdditional = getTotalAdditionalPrice(product.options, selectedOptions);
+
   const tabItems = [
     {
       key: "buy",
@@ -177,11 +210,10 @@ export default function ProductModal({
             product={product}
             quantity={quantity}
             setQuantity={setQuantity}
-            onAddToCart={(...args) => {
-              onAddToCart(...args);
-              onCancel();
-            }}
+            onAddToCart={onAddToCart}
             selectedOptions={selectedOptions}
+            totalAdditional={totalAdditional}
+            onCancel={onCancel}
           />
         </Space>
       ),
@@ -273,7 +305,6 @@ export default function ProductModal({
             ))}
           </Carousel>
         </Col>
-
         <Col xs={24} md={14}>
           <Tabs defaultActiveKey="buy" items={tabItems} />
         </Col>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Typography, Tabs } from "antd";
+import { Layout, Tabs } from "antd";
 import AppBar from "../AppBar";
 import CategoryMenu from "../CategoryMenu";
 import ProductSection from "../ProductSection";
@@ -8,9 +8,7 @@ import CartDrawer from "../CartDrawer";
 import { allProducts, categories } from "../../DummyData/product";
 import useCart from "../../hooks/useCart";
 
-
 const { Sider, Content } = Layout;
-const { Title } = Typography;
 
 const tabList = [
   { key: "熱賣", label: "熱賣" },
@@ -38,6 +36,12 @@ export default function App() {
     return products;
   }
 
+  // 加入購物車然後自動關閉 modal
+  function handleAddToCart(productWithOptions) {
+    cart.addToCart(productWithOptions);
+    setModalProduct(null);
+  }
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <AppBar
@@ -62,8 +66,6 @@ export default function App() {
           />
         </Sider>
         <Content style={{ padding: 24, background: "#fff" }}>
-          {/* 推薦牆，如要加可在此插入 <PromoWall /> */}
-          {/* <PromoWall /> */}
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
@@ -88,7 +90,7 @@ export default function App() {
       <ProductModal
         visible={!!modalProduct}
         product={modalProduct}
-        onAddToCart={cart.addToCart}
+        onAddToCart={handleAddToCart}
         onCancel={() => setModalProduct(null)}
       />
       <CartDrawer
