@@ -80,7 +80,7 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
         </Space>
       </div>
       <div style={{ display: "flex", alignItems: "center", marginTop: 8, justifyContent: "space-between" }}>
-        <Text type="danger" style={{ fontSize: 20, fontWeight: 700 }}>${product.price}</Text>
+        <Text type="danger" style={{ fontSize: 20, fontWeight: 700 }}>HK${product.price}</Text>
         <Text type="secondary" style={{ fontSize: 13 }}>
           已售: {product.sold}
         </Text>

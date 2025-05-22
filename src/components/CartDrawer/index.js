@@ -3,23 +3,99 @@ import {
   Drawer,
   List,
   Typography,
-  Space,
-  InputNumber,
   Button,
-  Divider,
   Row,
   Col,
+  Empty,
+  InputNumber,
 } from "antd";
+import {
+  DeleteOutlined,
+  ShoppingCartOutlined,
+  DeleteFilled,
+  MinusOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 const { Text } = Typography;
 
-// Helper: 計算單一商品選項加價總和
+function QtyInput({ value, min = 1, max = 99, onChange }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        border: "1px solid #d9d9d9",
+        borderRadius: 6,
+        overflow: "hidden",
+        width: 90,
+        background: "#fff",
+        height: 28,
+      }}
+    >
+      <Button
+        type="text"
+        icon={<MinusOutlined style={{ fontSize: 14 }} />}
+        disabled={value <= min}
+        size="small"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        tabIndex={-1}
+        style={{
+          width: 28,
+          height: 28,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+        }}
+      />
+      <InputNumber
+        min={min}
+        max={max}
+        value={value}
+        controls={false}
+        onChange={onChange}
+        size="small"
+        style={{
+          border: "none",
+          width: 34,
+          textAlign: "center",
+          fontSize: 15,
+          background: "none",
+          padding: 0,
+          height: 28,
+          lineHeight: "28px",
+          verticalAlign: "middle",
+        }}
+        // 消除左右箭頭(Chrome/Safari)
+        addonAfter={null}
+      />
+      <Button
+        type="text"
+        icon={<PlusOutlined style={{ fontSize: 14 }} />}
+        disabled={value >= max}
+        size="small"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        tabIndex={-1}
+        style={{
+          width: 28,
+          height: 28,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+        }}
+      />
+    </div>
+  );
+}
+
 function getItemAdditionalPrice(item) {
   if (!item.options || !item.selectedOptions) return 0;
   let sum = 0;
-  item.options.forEach(opt => {
+  item.options.forEach((opt) => {
     const selected = item.selectedOptions?.[opt.title];
-    const found = opt.value.find(v => v.item === selected);
+    const found = opt.value.find((v) => v.item === selected);
     if (found && found.additionalPrice) sum += found.additionalPrice;
   });
   return sum;
@@ -33,187 +109,272 @@ export default function CartDrawer({
   onUpdateQty,
   onClear,
 }) {
-  // 確保 quantity 為正整數，否則當作 1
-  const safeQuantity = q => (typeof q === "number" && q > 0 ? q : 1);
-
-  const getFinalUnitPrice = item =>
+  const safeQuantity = (q) => (typeof q === "number" && q > 0 ? q : 1);
+  const getFinalUnitPrice = (item) =>
     (item.price || 0) + getItemAdditionalPrice(item);
 
-  // 計算總價時也確保 quantity 正確
   const total = items.reduce(
     (sum, i) => sum + getFinalUnitPrice(i) * safeQuantity(i.quantity),
     0
   );
 
+  const width =
+    typeof window !== "undefined" && window.innerWidth < 500 ? "100vw" : 390;
+  const mainColor = "#1677ff";
+
+  // Header 右上角 - 清空鈕
+  const HeaderExtra = (
+    <Button
+      type="text"
+      icon={<DeleteFilled />}
+      size="small"
+      style={{
+        color: "#aaa",
+        fontWeight: 400,
+        fontSize: 15,
+        marginRight: -8,
+        background: "none",
+      }}
+      onClick={onClear}
+      disabled={items.length === 0}
+    >
+      清空
+    </Button>
+  );
+
   return (
     <Drawer
-      title="購物車"
+      title={
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontWeight: 500,
+            fontSize: 18,
+            letterSpacing: 1,
+          }}
+        >
+          <ShoppingCartOutlined
+            style={{ fontSize: 22, color: mainColor, marginRight: 8 }}
+          />
+          購物車
+        </span>
+      }
       placement="right"
       open={open}
       onClose={onClose}
-      width={window.innerWidth < 500 ? "100vw" : 350}
-      bodyStyle={{ padding: "0 8px", overflowX: "hidden" }}
+      width={width}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          padding: 0,
+          background: "#fff",
+        },
+        footer: {
+          padding: "16px 18px 20px 18px",
+          background: "#fff",
+          borderTop: "1px solid #f0f0f0",
+        },
+      }}
+      closeIcon={null}
+      extra={HeaderExtra}
       footer={
-        <div style={{ textAlign: "right" }}>
-          <Button onClick={onClear} style={{ marginRight: 8 }}>
-            清空購物車
-          </Button>
-          <Button type="primary" disabled={items.length === 0}>
-            結帳（暫未開放）
-          </Button>
-        </div>
+        <Button
+          type="primary"
+          size="large"
+          block
+          disabled={items.length === 0}
+          style={{
+            background: mainColor,
+            borderRadius: 24,
+            fontWeight: 500,
+            fontSize: 17,
+            letterSpacing: 1,
+            height: 48,
+            boxShadow: "0 2px 8px #1677ff18",
+          }}
+        >
+          {items.length > 0
+            ? ` $${Number(total).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}`
+            : ""}
+        </Button>
       }
     >
-      <List
-        itemLayout="horizontal"
-        dataSource={items}
-        locale={{ emptyText: "購物車暫無商品" }}
-        renderItem={item => {
-          const addPrice = getItemAdditionalPrice(item);
-          const finalUnitPrice = getFinalUnitPrice(item);
-          const quantity = safeQuantity(item.quantity);
+      <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 0 12px" }}>
+        {items.length === 0 ? (
+          <Empty
+            description="購物車暫無商品"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            style={{ paddingTop: "60px" }}
+          />
+        ) : (
+          <List
+            itemLayout="vertical"
+            dataSource={items}
+            renderItem={(item) => {
+              const addPrice = getItemAdditionalPrice(item);
+              const finalUnitPrice = getFinalUnitPrice(item);
+              const quantity = safeQuantity(item.quantity);
 
-          return (
-            <List.Item style={{ padding: "10px 0" }}>
-              <Row
-                style={{ width: "100%", paddingTop: "20px" }}
-                align="middle"
-                wrap={false}
-              >
-                <Col flex="0 0 48px">
-                  <img
-                    src={item.images?.[0]}
-                    style={{
-                      width: 48,
-                      height: 48,
-                      objectFit: "cover",
-                      borderRadius: 4,
-                      background: "#f5f5f5",
-                    }}
-                    alt={item.name}
-                  />
-                </Col>
-                <Col flex="auto" style={{ paddingLeft: 12 }}>
-                  <div
-                    style={{
-                      fontWeight: 500,
-                      fontSize: 15,
-                      marginBottom: 2,
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {item.name}
-                  </div>
-                  {/* 選項顯示區 */}
-                  {item.selectedOptions &&
-                    Object.keys(item.selectedOptions).length > 0 && (
+              return (
+                <List.Item
+                  style={{
+                    background: "#f8fafd",
+                    borderRadius: 14,
+                    marginBottom: 16,
+                    padding: 0,
+                    border: "1px solid #f1f3f7",
+                  }}
+                >
+                  <Row align="top" gutter={12} style={{ padding: 14 }}>
+                    <Col flex="0 0 56px">
+                      <img
+                        src={item.images?.[0]}
+                        alt={item.name}
+                        style={{
+                          width: 56,
+                          height: 56,
+                          objectFit: "cover",
+                          borderRadius: 7,
+                          background: "#f5f5f5",
+                          border: "1px solid #e6e6e6",
+                          display: "block",
+                        }}
+                      />
+                    </Col>
+                    <Col flex="auto" style={{ minWidth: 0 }}>
                       <div
                         style={{
-                          fontSize: 12,
+                          fontWeight: 400,
+                          fontSize: 12.5,
                           color: "#888",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                           marginBottom: 2,
                         }}
                       >
-                        {Object.entries(item.selectedOptions).map(
-                          ([key, value]) => {
-                            let optionPrice = 0;
-                            const opt = (item.options || []).find(
-                              opt => opt.title === key
-                            );
-                            if (opt) {
-                              const found = opt.value.find(
-                                v => v.item === value
-                              );
-                              optionPrice =
-                                found && found.additionalPrice
-                                  ? found.additionalPrice
-                                  : 0;
-                            }
-                            return (
-                              <div key={key}>
-                                {key}：{value}
-                                {optionPrice > 0 && (
-                                  <span
-                                    style={{
-                                      color: "#d4380d",
-                                      marginLeft: 2,
-                                    }}
-                                  >
-                                    (+${optionPrice})
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          }
-                        )}
+                        {item.brand}
                       </div>
-                    )}
-                  <Space size="small" align="center">
-                    <Text type="secondary" style={{ fontSize: 13 }}>
-                      單價：${finalUnitPrice}
-                    </Text>
-                    <InputNumber
-                      min={1}
-                      max={99}
-                      value={quantity}
-                      onChange={qty => {
-                        // 防呆！只接受正整數
-                        if (typeof qty === "number" && qty > 0) {
-                          onUpdateQty(item.id, qty);
-                        } else if (qty === null || qty === undefined) {
-                          // 清空時自動設回 1
-                          onUpdateQty(item.id, 1);
-                        }
-                      }}
-                      size="small"
-                      style={{ width: 48 }}
-                    />
-                  </Space>
-                </Col>
-                <Col
-                  style={{
-                    minWidth: 80,
-                    textAlign: "right",
-                    paddingLeft: 8,
-                    paddingRight: 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <Text strong style={{ fontSize: 16 }}>
-                      ${finalUnitPrice * quantity}
-                    </Text>
-                    <Button
-                      size="small"
-                      type="link"
-                      danger
-                      onClick={() => onRemove(item.id)}
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          fontSize: 15.5,
+                          marginBottom: 4,
+                          wordBreak: "break-all",
+                          color: "#23272e",
+                        }}
+                      >
+                        {item.name}
+                      </div>
+                      {item.selectedOptions &&
+                        Object.keys(item.selectedOptions).length > 0 && (
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "#7a869a",
+                              marginBottom: 2,
+                            }}
+                          >
+                            {Object.entries(item.selectedOptions).map(
+                              ([key, value]) => {
+                                let optionPrice = 0;
+                                const opt = (item.options || []).find(
+                                  (opt) => opt.title === key
+                                );
+                                if (opt) {
+                                  const found = opt.value.find(
+                                    (v) => v.item === value
+                                  );
+                                  optionPrice =
+                                    found && found.additionalPrice
+                                      ? found.additionalPrice
+                                      : 0;
+                                }
+                                return (
+                                  <div key={key}>
+                                    {key}：{value}
+                                    {optionPrice > 0 && (
+                                      <span
+                                        style={{
+                                          color: "#d4380d",
+                                          marginLeft: 2,
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        (+${optionPrice})
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
+                        )}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          marginTop: 6,
+                        }}
+                      >
+                        <QtyInput
+                          value={quantity}
+                          min={1}
+                          max={99}
+                          onChange={(val) => {
+                            if (typeof val === "number" && val > 0) {
+                              onUpdateQty(item.id, val);
+                            }
+                          }}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: mainColor,
+                            marginLeft: 8,
+                          }}
+                        >
+                          ${finalUnitPrice * quantity}
+                        </Text>
+                      </div>
+                    </Col>
+                    <Col
+                      flex="0 0 auto"
                       style={{
-                        padding: 0,
-                        fontSize: 15,
-                        marginTop: 2,
-                        lineHeight: 1,
+                        display: "flex",
+                        alignItems: "flex-start",
+                        justifyContent: "flex-end",
+                        marginLeft: 8,
                       }}
                     >
-                      移除
-                    </Button>
-                  </div>
-                </Col>
-              </Row>
-            </List.Item>
-          );
-        }}
-      />
-      <Divider />
-      <div style={{ textAlign: "right" }}>
-        <Text strong style={{ fontSize: 16 }}>
-          總計：${total}
-        </Text>
+                      <Button
+                        shape="circle"
+                        icon={<DeleteOutlined />}
+                        danger
+                        size="small"
+                        type="text"
+                        onClick={() => onRemove(item.id)}
+                        style={{
+                          fontSize: 16,
+                          marginTop: 2,
+                          color: "#aaa",
+                          background: "none",
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                </List.Item>
+              );
+            }}
+          />
+        )}
       </div>
     </Drawer>
   );

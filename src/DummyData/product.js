@@ -19,6 +19,7 @@ export const allProducts = [
     price: 9999,
     sold: 1200,
     type: "熱賣",
+    brand: "小米",
     category: "手機通訊",
     productInfo: [
       { title: "尺寸", value: "152.8 x 71.5 x 8.6 mm" },
@@ -64,7 +65,8 @@ export const allProducts = [
     price: 9999,
     sold: 1200,
     type: "熱賣",
-    category: "手機通訊",
+    category: "電腦辦公",
+    brand: "Apple",
     productInfo: [
       { title: "尺寸", value: "355.7 x 248.1 x 16.2 mm" },
       { title: "顏色", value: "太空灰" },
