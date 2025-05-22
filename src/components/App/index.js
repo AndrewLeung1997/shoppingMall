@@ -8,18 +8,15 @@ import {
 } from "react-router-dom";
 import Login from "../Login";
 import MultiStepRegistration from "../Registration";
-import ProductList from "../ProductOverview";
-import TaobaoAppBar from "../AppBar";
+import HomePage from "../Home";
 
 export default function App() {
   return (
     <BrowserRouter>
-    <TaobaoAppBar />
       <Routes>
-      
-       <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<MultiStepRegistration />} />
-        <Route path="/home" element={<ProductList />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="*" element={<Login />} /> {/* 預設導向登入 */}
       </Routes>
     </BrowserRouter>

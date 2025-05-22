@@ -1,0 +1,26 @@
+export interface Product {
+
+    productId: string,
+    productName: string,
+    productAvailableStatus: boolean,
+    productDefinedStatus: boolean,
+    productDiscountStatus: boolean,
+    productDiscountId: string,
+    productDescription: string,
+    productPrice: Number,
+    productBrand: string,
+    productStock: Number,
+    productCategoryId: string,
+    prodcutOrigin: string,
+    productsAvatarUrl : string,
+    productImagesUrl : string[],
+    productDescriptionImageUrl: string,
+    devliveryMethod: string[],
+    tags: string[],
+    estimateDeveliveryDateRange: string,
+    createdAt: string,
+    updatedAt: string,
+    rating: Number,
+    numReviews: Number,
+    productSoldCount: Number
+}
