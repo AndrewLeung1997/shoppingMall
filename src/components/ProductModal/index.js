@@ -6,7 +6,6 @@ import {
 
 const { Title, Text } = Typography;
 
-// 子元件：商品選項
 function ProductOptions({ options, selected, onChange }) {
   if (!options) return null;
   return (
@@ -14,18 +13,26 @@ function ProductOptions({ options, selected, onChange }) {
       {options.map(opt => (
         <div key={opt.title}>
           <div style={{ fontWeight: 500, marginBottom: 8 }}>{opt.title}：</div>
-          <Space>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              rowGap: 8, // 可選，讓上下間距更美觀
+            }}
+          >
             {opt.value.map(v => (
               <Button
                 key={v.item}
                 type={selected[opt.title] === v.item ? "primary" : "default"}
                 disabled={!v.available}
                 onClick={() => onChange(opt.title, v.item)}
+                style={{ marginBottom: 4 }}
               >
                 {v.item}
               </Button>
             ))}
-          </Space>
+          </div>
         </div>
       ))}
     </Space>
