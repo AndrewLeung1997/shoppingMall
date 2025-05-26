@@ -124,7 +124,7 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
               HK${product.orignialPrice}
             </Text>
           )}
-          {hasDiscount && (
+          {/* {hasDiscount && (
             <Tag
               color="red"
               style={{
@@ -140,7 +140,7 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
             >
               -{discountPercent}%
             </Tag>
-          )}
+          )} */}
         </div>
       </div>
     </Card>
