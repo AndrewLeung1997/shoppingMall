@@ -1,6 +1,11 @@
 import React from "react";
 import { Card, Typography, Tag, Button, Tooltip, Space } from "antd";
-import { ShoppingCartOutlined, FireFilled, StarFilled, ClockCircleFilled } from "@ant-design/icons";
+import {
+  ShoppingCartOutlined,
+  FireFilled,
+  StarFilled,
+  ClockCircleFilled,
+} from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -10,16 +15,21 @@ const typeIcon = {
   最新: <ClockCircleFilled style={{ color: "#52c41a", marginRight: 4 }} />,
 };
 
-function renderInfo(info) {
-  // 顯示最多兩項資訊
-  return info?.slice(0,2)?.map((value, index) => (
-      <Tag color="default" key={index} style={{ marginRight: 4, marginTop: 2 }}>
-        {value.title}:{value.value}
-      </Tag>
-    ));
+
+// Discount helper
+function getDiscountPercent(price, originalPrice) {
+  if (!originalPrice || price >= originalPrice) return null;
+  return Math.round(((originalPrice - price) / originalPrice) * 100);
 }
 
 export default function ProductCard({ product, onClick, onAddToCart }) {
+  const hasDiscount =
+    product.orignialPrice && product.price < product.orignialPrice;
+  const discountPercent = getDiscountPercent(
+    product.price,
+    product.orignialPrice
+  );
+
   return (
     <Card
       hoverable
@@ -32,8 +42,7 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
         position: "relative",
         overflow: "hidden",
       }}
-      styles={{body:{padding: 14, paddingBottom: 8} }}
-      
+      styles={{ body: { padding: 14, paddingBottom: 8 } }}
       cover={
         <div
           style={{
@@ -63,27 +72,76 @@ export default function ProductCard({ product, onClick, onAddToCart }) {
         </div>
       }
       onClick={() => onClick(product)}
-     
     >
       <div style={{ minHeight: 56 }}>
         <Title level={5} ellipsis={{ rows: 2 }} style={{ marginBottom: 2 }}>
           {product.name}
         </Title>
         <div style={{ marginBottom: 4 }}>
-          <Tag color={product.type === "熱賣" ? "red" : product.type === "人氣" ? "gold" : "green"} style={{ fontWeight: 600 }}>
+          <Tag
+            color={
+              product.type === "熱賣"
+                ? "red"
+                : product.type === "人氣"
+                  ? "gold"
+                  : "green"
+            }
+            style={{ fontWeight: 600 }}
+          >
             {typeIcon[product.type]}
             {product.type}
           </Tag>
         </div>
-        <Space size="small" style={{ marginBottom: 2, flexWrap: "wrap" }}>
-          {renderInfo(product.productInfo)}
+        <Space size="small" style={{ marginBottom: 2, flexWrap: "wrap"}}>
+          <Tag>{product.sellingStatus === true ? "有存貨" : "已下架"}</Tag>
+          <Tag color={product.productStatus === '接受預訂' ? '#dc5a19' : '#00806c'}>{product.productStatus}</Tag>
+          
         </Space>
       </div>
-      <div style={{ display: "flex", alignItems: "center", marginTop: 8, justifyContent: "space-between" }}>
-        <Text type="danger" style={{ fontSize: 20, fontWeight: 700 }}>HK${product.price}</Text>
-        <Text type="secondary" style={{ fontSize: 13 }}>
-          已售: {product.sold}
-        </Text>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: 8,
+          justifyContent: "space-between",
+          minHeight: 32,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Text type="danger" style={{ fontSize: 20, fontWeight: 700 }}>
+            HK${product.price}
+          </Text>
+          {hasDiscount && (
+            <Text
+              delete
+              type="secondary"
+              style={{
+                fontSize: 13,
+                marginLeft: 8,
+                color: "#bfbfbf",
+              }}
+            >
+              HK${product.orignialPrice}
+            </Text>
+          )}
+          {hasDiscount && (
+            <Tag
+              color="red"
+              style={{
+                marginLeft: 8,
+                fontWeight: 600,
+                fontSize: 12,
+                borderRadius: 4,
+                height: 22,
+                display: "flex",
+                alignItems: "center",
+                padding: "0 6px",
+              }}
+            >
+              -{discountPercent}%
+            </Tag>
+          )}
+        </div>
       </div>
     </Card>
   );

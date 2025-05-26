@@ -7,6 +7,7 @@ import {
   LoginOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -16,6 +17,9 @@ export default function AppBar({
   cartCount,
   onCartClick,
 }) {
+
+  const navigate = useNavigate();
+
   return (
     <Header
       style={{
@@ -44,8 +48,8 @@ export default function AppBar({
         </Col>
         <Col>
           <Space>
-            <Button icon={<LoginOutlined />}>登入</Button>
-            <Button icon={<UserOutlined />}>註冊</Button>
+            <Button onClick={()=> navigate("/login")} icon={<LoginOutlined />}>登入</Button>
+            <Button onClick={()=> navigate("/register")} icon={<UserOutlined />}>註冊</Button>
             <Badge count={cartCount}>
               <Button
                 shape="circle"

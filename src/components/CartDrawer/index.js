@@ -19,6 +19,7 @@ import {
 
 const { Text } = Typography;
 
+// 數量輸入元件
 function QtyInput({ value, min = 1, max = 99, onChange }) {
   return (
     <div
@@ -67,7 +68,6 @@ function QtyInput({ value, min = 1, max = 99, onChange }) {
           lineHeight: "28px",
           verticalAlign: "middle",
         }}
-        // 消除左右箭頭(Chrome/Safari)
         addonAfter={null}
       />
       <Button
@@ -90,8 +90,9 @@ function QtyInput({ value, min = 1, max = 99, onChange }) {
   );
 }
 
+// 計算商品選項額外價格
 function getItemAdditionalPrice(item) {
-  if (!item.options || !item.selectedOptions) return 0;
+  if (!Array.isArray(item.options) || !item.selectedOptions) return 0;
   let sum = 0;
   item.options.forEach((opt) => {
     const selected = item.selectedOptions?.[opt.title];
@@ -99,6 +100,45 @@ function getItemAdditionalPrice(item) {
     if (found && found.additionalPrice) sum += found.additionalPrice;
   });
   return sum;
+}
+
+// 渲染商品選項區塊
+function ProductOptions({ options, selectedOptions }) {
+  if (
+    !Array.isArray(options) ||
+    !selectedOptions ||
+    Object.keys(selectedOptions).length === 0
+  ) {
+    return null;
+  }
+  return (
+    <div style={{ fontSize: 12, color: "#7a869a", marginBottom: 2 }}>
+      {Object.entries(selectedOptions).map(([key, value]) => {
+        let optionPrice = 0;
+        const opt = options.find((opt) => opt.title === key);
+        if (opt) {
+          const found = opt.value.find((v) => v.item === value);
+          optionPrice = found && found.additionalPrice ? found.additionalPrice : 0;
+        }
+        return (
+          <div key={key}>
+            {key}：{value}
+            {optionPrice > 0 && (
+              <span
+                style={{
+                  color: "#d4380d",
+                  marginLeft: 2,
+                  fontWeight: 500,
+                }}
+              >
+                (+${optionPrice})
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function CartDrawer({
@@ -190,14 +230,14 @@ export default function CartDrawer({
             background: mainColor,
             borderRadius: 24,
             fontWeight: 500,
-            fontSize: 17,
+            fontSize: 14,
             letterSpacing: 1,
             height: 48,
             boxShadow: "0 2px 8px #1677ff18",
           }}
         >
           {items.length > 0
-            ? ` $${Number(total).toLocaleString(undefined, {
+            ? `立刻支付 $${Number(total).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}`
             : ""}
@@ -216,12 +256,12 @@ export default function CartDrawer({
             itemLayout="vertical"
             dataSource={items}
             renderItem={(item) => {
-              const addPrice = getItemAdditionalPrice(item);
               const finalUnitPrice = getFinalUnitPrice(item);
               const quantity = safeQuantity(item.quantity);
 
               return (
                 <List.Item
+                  key={item.id}
                   style={{
                     background: "#f8fafd",
                     borderRadius: 14,
@@ -271,50 +311,11 @@ export default function CartDrawer({
                       >
                         {item.name}
                       </div>
-                      {item.selectedOptions &&
-                        Object.keys(item.selectedOptions).length > 0 && (
-                          <div
-                            style={{
-                              fontSize: 12,
-                              color: "#7a869a",
-                              marginBottom: 2,
-                            }}
-                          >
-                            {Object.entries(item.selectedOptions).map(
-                              ([key, value]) => {
-                                let optionPrice = 0;
-                                const opt = (item.options || []).find(
-                                  (opt) => opt.title === key
-                                );
-                                if (opt) {
-                                  const found = opt.value.find(
-                                    (v) => v.item === value
-                                  );
-                                  optionPrice =
-                                    found && found.additionalPrice
-                                      ? found.additionalPrice
-                                      : 0;
-                                }
-                                return (
-                                  <div key={key}>
-                                    {key}：{value}
-                                    {optionPrice > 0 && (
-                                      <span
-                                        style={{
-                                          color: "#d4380d",
-                                          marginLeft: 2,
-                                          fontWeight: 500,
-                                        }}
-                                      >
-                                        (+${optionPrice})
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              }
-                            )}
-                          </div>
-                        )}
+                      {/* 僅當有 options 與 selectedOptions 時才顯示選項 */}
+                      <ProductOptions
+                        options={item.options}
+                        selectedOptions={item.selectedOptions}
+                      />
                       <div
                         style={{
                           display: "flex",

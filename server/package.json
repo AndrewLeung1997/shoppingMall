@@ -1,0 +1,32 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node -T index.ts",
+    "dev": "ts-node index.ts",
+    "start:cron": "ts-node ./crons/run.ts",
+    "start-old": "node index.js",
+    "lint": "eslint ./",
+    "deploy": "npm run lint && gcloud app deploy ",
+    "deploy:cron": "npm run lint && gcloud app deploy cron.app.yaml"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cors": "^7.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
+    "fastify": "^3.28.0",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
+  }
+}

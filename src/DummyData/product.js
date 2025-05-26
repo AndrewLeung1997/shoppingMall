@@ -16,11 +16,14 @@ export const allProducts = [
       "https://i02.appmifile.com/390_item_hk/27/02/2024/5ae17de595076ed89610f335f2bb3f2d.png?thumb=1&w=1000&f=webp&q=85",
       "https://dummyimage.com/300x300/cccccc/333&text=iPhone+15+側面",
     ],
-    price: 9999,
+    price: 4999,
+    orignialPrice: 9999,
     sold: 1200,
     type: "熱賣",
     brand: "小米",
     category: "手機通訊",
+    sellingStatus: true,
+    productStatus: '接受預訂',
     productInfo: [
       { title: "尺寸", value: "152.8 x 71.5 x 8.6 mm" },
       { title: "顏色", value: "鈦金屬" },
@@ -63,10 +66,13 @@ export const allProducts = [
       "https://dummyimage.com/300x300/cccccc/333&text=iPhone+15+側面",
     ],
     price: 9999,
+    originalPrice: 9999,
     sold: 1200,
     type: "熱賣",
     category: "電腦辦公",
     brand: "Apple",
+    sellingStatus: true,
+    productStatus: '現貨發售',
     productInfo: [
       { title: "尺寸", value: "355.7 x 248.1 x 16.2 mm" },
       { title: "顏色", value: "太空灰" },
@@ -129,5 +135,27 @@ export const allProducts = [
         ],
       },
     ],
+  },
+  {
+    id: 20231,
+    name: "AirPods Pro 第二代",
+    images: [
+      "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111851_sp880-airpods-Pro-2nd-gen.png",
+      "https://dummyimage.com/300x300/cccccc/333&text=iPhone+15+側面",
+    ],
+    price: 1849,
+    originalPrice: 1299,
+    sold: 1200,
+    type: "熱賣",
+    category: "電腦辦公",
+    brand: "Apple",
+    sellingStatus: true,
+    productStatus: '現貨發售',
+    productInfo: [
+     {title: '處理器', value: 'Apple H2 耳機晶片'},
+     {title: '接口', value: 'USB Type-C'}
+     
+    ],
+    
   },
 ];
